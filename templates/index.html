@@ -126,7 +126,7 @@
 
         </div>
         {% endif %}
-
+        
         <table>
             <thead>
                 <tr><th>Rentang AQI</th><th>Kategori</th></tr>
@@ -141,16 +141,15 @@
                 <tr><td>401+</td><td>Ekstrem Berbahaya</td></tr>
             </tbody>
         </table>
-
-<div class="result baik">
-    <h3>Evaluasi Model:</h3>
-    <ul>
-        <li>MAE: {{ evaluation.MAE }}</li>
-        <li>MSE: {{ evaluation.MSE }}</li>
-        <li>RMSE: {{ evaluation.RMSE }}</li>
-        <li>R² Score: {{ evaluation.R2 }}</li>
-    </ul>
-</div>
+        <div class="result baik">
+            <h3>Evaluasi Model:</h3>
+            <ul>
+                <li>MAE: {{ evaluation.MAE }}</li>
+                <li>MSE: {{ evaluation.MSE }}</li>
+                <li>RMSE: {{ evaluation.RMSE }}</li>
+                <li>R² Score: {{ evaluation.R2 }}</li>
+            </ul>
+        </div>
 
     </div>
 </body>
