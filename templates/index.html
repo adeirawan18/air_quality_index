@@ -30,8 +30,8 @@
             margin-top: 20px;
         }
 
-        .result.baik { background-color: #d4edda; border-left: 6px solid #28a745; }
-        .result.sedang { background-color: #fff3cd; border-left: 6px solid #ffc107; }
+        .result.sehat { background-color: #d4edda; border-left: 6px solid #28a745; }
+        .result.cukup_sehat { background-color: #fff3cd; border-left: 6px solid #ffc107; }
         .result.tidak_sehat_untuk_kelompok_sensitif { background-color: #fbe9c5; border-left: 6px solid #ff9800; }
         .result.tidak_sehat { background-color: #f8d7da; border-left: 6px solid #dc3545; }
         .result.sangat_tidak_sehat { background-color: #e2d3f8; border-left: 6px solid #6f42c1; }
@@ -132,8 +132,8 @@
                 <tr><th>Rentang AQI</th><th>Kategori</th></tr>
             </thead>
             <tbody>
-                <tr><td>0–50</td><td>Baik</td></tr>
-                <tr><td>51–100</td><td>Sedang</td></tr>
+                <tr><td>0–50</td><td>Sehat</td></tr>
+                <tr><td>51–100</td><td>Cukup Sehat</td></tr>
                 <tr><td>101–150</td><td>Tidak Sehat untuk Kelompok Sensitif</td></tr>
                 <tr><td>151–200</td><td>Tidak Sehat</td></tr>
                 <tr><td>201–300</td><td>Sangat Tidak Sehat</td></tr>
@@ -145,7 +145,6 @@
             <h3>Evaluasi Model:</h3>
             <ul>
                 <li>MAE: {{ evaluation.MAE }}</li>
-                <li>MSE: {{ evaluation.MSE }}</li>
                 <li>RMSE: {{ evaluation.RMSE }}</li>
                 <li>R² Score: {{ evaluation.R2 }}</li>
             </ul>

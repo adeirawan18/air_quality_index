@@ -12,9 +12,9 @@ with open('model/random_forest_model.pkl', 'rb') as f:
 
 def classify_aqi(aqi_value):
     if aqi_value <= 50:
-        return "Baik", "Kualitas udara sangat baik dan tidak membahayakan kesehatan."
+        return "Sehat", "Kualitas udara sangat baik dan tidak membahayakan kesehatan."
     elif aqi_value <= 100:
-        return "Sedang", "Kualitas udara masih dapat diterima, namun beberapa polutan mungkin berisiko bagi individu yang sangat sensitif."
+        return "Cukup Sehat", "Kualitas udara masih dapat diterima, namun beberapa polutan mungkin berisiko bagi individu yang sangat sensitif."
     elif aqi_value <= 150:
         return "Tidak Sehat untuk Kelompok Sensitif", "Kelompok sensitif seperti anak-anak dan lansia mungkin mulai merasakan dampak kesehatan."
     elif aqi_value <= 200:
@@ -50,7 +50,7 @@ def evaluate_model(model):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    evaluation = evaluate_model(model)  # evaluasi dinamis
+    evaluation = evaluate_model(model) 
 
     if request.method == 'POST':
         try:
