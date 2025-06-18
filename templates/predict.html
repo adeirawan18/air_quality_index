@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Prediksi Kualitas Udara (AQI)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<!-- ... bagian <head> tetap sama seperti sebelumnya ... -->
+<body>
+    <div class="main-content">
+        <!-- Panel Kiri: Form + Tabel (selalu ditampilkan) -->
+        <div class="container">
+            <h1>Prediksi Kualitas Udara (AQI)</h1>
+            <form method="POST">
+                <label>Carbon Monoxide (CO AQI Value):</label>
+                <input type="number" step="1" name="CO" required min="0" placeholder="Misal: 50">
+
+                <label>Ozone (O3 AQI Value):</label>
+                <input type="number" step="1" name="O3" required min="0" placeholder="Misal: 1">
+
+                <label>Nitrogen Dioxide (NO2 AQI Value):</label>
+                <input type="number" step="1" name="NO2" required min="0" placeholder="Misal: 1">
+
+                <label>Particulate Matter ≤ 2.5 µm (PM2.5 AQI Value):</label>
+                <input type="number" step="1" name="PM25" required min="0" placeholder="Misal: 40">
+
+                <button type="submit">Prediksi AQI</button>
+            </form>
+
+            <h3 style="text-align:center; margin-top: 30px;">Kategori AQI</h3>
+            <table>
+                <thead>
+                    <tr><th>Rentang AQI</th><th>Kategori</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>0–50</td><td>Sehat</td></tr>
+                    <tr><td>51–100</td><td>Cukup Sehat</td></tr>
+                    <tr><td>101–150</td><td>Tidak Sehat untuk Kelompok Sensitif</td></tr>
+                    <tr><td>151–200</td><td>Tidak Sehat</td></tr>
+                    <tr><td>201–300</td><td>Sangat Tidak Sehat</td></tr>
+                    <tr><td>301–400</td><td>Berbahaya</td></tr>
+                    <tr><td>401+</td><td>Ekstrem Berbahaya</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Panel Kanan: Hasil prediksi hanya ditampilkan setelah submit -->
+        {% if prediction %}
+        <div class="container">
+            <div class="result {{ category.lower().replace(' ', '_') }}">
+                <h2>Hasil Prediksi AQI: {{ prediction }}</h2>
+                <h3>Kategori: {{ category }}</h3>
+                <p>{{ message }}</p>
+
+                <h4>Konsentrasi Polutan:</h4>
+                <ul>
+                    <li>CO: {{ input_values.CO }}</li>
+                    <li>O3: {{ input_values.O3 }}</li>
+                    <li>NO2: {{ input_values.NO2 }}</li>
+                    <li>PM2.5: {{ input_values['PM2.5'] }}</li>
+                </ul>
+
+                <div id="pollutant-data"
+                     data-co="{{ input_values.CO }}"
+                     data-o3="{{ input_values.O3 }}"
+                     data-no2="{{ input_values.NO2 }}"
+                     data-pm25="{{ input_values['PM2.5'] }}">
+                </div>
+                <canvas id="pollutantChart"></canvas>
+                <script>
+                    const dataDiv = document.getElementById('pollutant-data');
+                    const co = parseFloat(dataDiv.dataset.co);
+                    const o3 = parseFloat(dataDiv.dataset.o3);
+                    const no2 = parseFloat(dataDiv.dataset.no2);
+                    const pm25 = parseFloat(dataDiv.dataset.pm25);
+
+                    const ctx = document.getElementById('pollutantChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['CO', 'O3', 'NO2', 'PM2.5'],
+                            datasets: [{
+                                label: 'Nilai AQI',
+                                data: [co, o3, no2, pm25],
+                                backgroundColor: ['#00c6ff', '#7ee8fa', '#fcd34d', '#ff6f61']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false },
+                                title: { display: true, text: 'Konsentrasi Polutan (AQI)', color: '#fff' }
+                            },
+                            scales: {
+                                x: { ticks: { color: '#fff' } },
+                                y: { ticks: { color: '#fff' } }
+                            }
+                        }
+                    });
+                </script>
+            </div>
+
+            {% if evaluation %}
+            <div class="result sehat">
+                <h3>Evaluasi Model:</h3>
+                <ul>
+                    <li>MAE: {{ evaluation.MAE }}</li>
+                    <li>RMSE: {{ evaluation.RMSE }}</li>
+                    <li>R² Score: {{ evaluation.R2 }}</li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

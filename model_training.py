@@ -1,74 +1,63 @@
 import os
 import pandas as pd
 import numpy as np
+import pickle
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-import pickle
 from scipy.stats import zscore
+import matplotlib.pyplot as plt
 
-if not os.path.exists('model'):
-    os.makedirs('model')
+# Buat folder untuk menyimpan model
+os.makedirs('model', exist_ok=True)
 
-# Preprocessing
-def preprocess_data(df, features, target):
-    # Ambil hanya kolom yang diperlukan
-    df = df[features + [target]].copy()
+# Fitur dan target
+FEATURES = ['CO AQI Value', 'Ozone AQI Value', 'NO2 AQI Value', 'PM2.5 AQI Value']
+TARGET = 'AQI Value'
 
-    # Hapus nilai kosong
-    df = df.dropna()
-
-    # Konversi semua kolom ke numerik
-    for col in features + [target]:
-        df[col] = pd.to_numeric(df[col], errors='coerce')
-
-    # Drop jika ada NaN hasil konversi
-    df = df.dropna()
-
-    # Hapus outlier
-    z_scores = np.abs(zscore(df))
-    df = df[(z_scores < 3).all(axis=1)]
-
+# Fungsi preprocessing
+def preprocess_data(df):
+    df = df[FEATURES + [TARGET]].copy()
+    df.dropna(inplace=True)
+    df = df.apply(pd.to_numeric, errors='coerce')
+    df.dropna(inplace=True)
+    df = df[(np.abs(zscore(df)) < 3).all(axis=1)]  # hapus outlier
     return df
 
-# Baca dan Preprocess Dataset
-print("Membaca dataset...")
-data = pd.read_csv('data/global_air_quality_processed.csv')
+# Load dan preprocess data
+print("📥 Membaca dan memproses dataset...")
+df = pd.read_csv('data/global_air_quality_processed.csv')
+df = preprocess_data(df)
+X, y = df[FEATURES], df[TARGET]
 
-# Tentukan fitur dan target
-features = ['CO AQI Value', 'Ozone AQI Value', 'NO2 AQI Value', 'PM2.5 AQI Value']
-target = 'AQI Value'
-
-print("Melakukan preprocessing...")
-data = preprocess_data(data, features, target)
-
-# Pisahkan fitur dan target
-X = data[features]
-y = data[target]
-
-# Split data menjadi train dan test
+# Split data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Buat dan latih model
-print("Melatih model Random Forest...")
+# Train model
+print("🧠 Melatih model...")
 model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
-# Simpan model ke file
+# Save model
 with open('model/random_forest_model.pkl', 'wb') as f:
     pickle.dump(model, f)
-
-print("Model sudah disimpan di: model/random_forest_model.pkl")
+print("✅ Model disimpan di 'model/random_forest_model.pkl'")
 
 # Evaluasi model
 y_pred = model.predict(X_test)
+print("\n📊 Evaluasi Model:")
+print(f"MAE       : {mean_absolute_error(y_test, y_pred):.2f}")
+print(f"RMSE      : {np.sqrt(mean_squared_error(y_test, y_pred)):.2f}")
+print(f"R² Train  : {model.score(X_train, y_train):.2f}")
+print(f"R² Test   : {r2_score(y_test, y_pred):.2f}")
 
-mae = mean_absolute_error(y_test, y_pred)
-mse = mean_squared_error(y_test, y_pred)
-rmse = np.sqrt(mse)
-r2 = r2_score(y_test, y_pred)
-
-print("\n Evaluasi Model:")
-print(f"MAE  : {mae:.2f}")
-print(f"RMSE : {rmse:.2f}")
-print(f"R²   : {r2:.2f}")
+# Visualisasi prediksi vs aktual
+plt.figure(figsize=(8, 6))
+plt.scatter(y_test, y_pred, alpha=0.6, edgecolors='k')
+plt.plot([y.min(), y.max()], [y.min(), y.max()], 'r--')
+plt.xlabel('Actual AQI')
+plt.ylabel('Predicted AQI')
+plt.title('Actual vs Predicted AQI')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
